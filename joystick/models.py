@@ -1,10 +1,6 @@
-from flask.ext.sqlalchemy import SQLAlchemy
+from .extensions import db
 from subprocess import call
 import shlex
-
-app = Flask(__name__)
-
-db = SQLAlchemy(app)
 
 # base class, abstract if possible
 class Command(db.Model):
