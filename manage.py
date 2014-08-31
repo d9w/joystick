@@ -1,7 +1,7 @@
-from flask.ext.script import Manager
+from flask.ext.script import Manager, Shell
 
 from joystick.app import app
-from joystick.extensions import db
+from joystick.models import db
 
 manager = Manager(app)
 
@@ -14,6 +14,10 @@ def initdb():
 
     db.drop_all()
     db.create_all()
+
+@manager.shell
+def _make_context():
+    return dict(app=app, db=db)
 
 if __name__ == '__main__':
     manager.run()
