@@ -18,13 +18,17 @@
     {% block css_style %}
     {% endblock %}
 
+    {% block js_top %}
+    {% endblock %}
+
 </head>
 <body>
     {% block topbar %}
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#" id="brand">Joystick</a>
+                <a class="navbar-brand" href="{{ url_for('index') }}" id="brand">Joystick
+                <img src="{{ url_for('static', filename='img/logosmall.png') }}" id="logo"></img></a>
             </div>
             <ul class="navbar-nav nav">
                 {% block navbar_content %}
@@ -72,10 +76,11 @@
 
     </div>
 
-    {% block js_btm %}
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    {% endblock %}
 
+    {% block js_btm %}
+
+    {% endblock %}
 </body>

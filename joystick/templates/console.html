@@ -1,5 +1,20 @@
 {% extends 'base.html' %}
 
+{% block js_top %}
+<script type="text/javascript">
+function toggle_output(command_id){
+    $('#output-'+command_id).slideToggle(400, function() {
+        if ($('#output-'+command_id).is(":visible")) {
+            $('#expand-'+command_id).html('[-]');
+            //$('#output-'+command_id).load('url_for_command_log_tail');
+        } else {
+            $('#expand-'+command_id).html('[+]');
+        }
+    });
+};
+</script>
+{% endblock %}
+
 {% block navbar_content %}
 <li><a href="#">{{ console.name }}</a></li>
 {% endblock %}
@@ -8,7 +23,7 @@
     <div class="col-lg-6" id="shell">
         <div class="panel panel-info">
             <div class="panel-heading">
-                Terminal
+                Shells
                 <span class="glyphicon glyphicon-plus pull-right"></span>
             </div>
         </div>
@@ -23,16 +38,17 @@
                 </div>
             </div>
             {% for button in console.buttons %}
-            <div class="row">
+            <div class="row button command">
                 <span class="glyphicon glyphicon-play"></span>
                 <a href="#">{{ button.cmd }}</a>
-                <a href="#" id="expand-{{ button.id }}" class="pull-right">[+]</a>
-                <div class="output" id="output-{{ button.id }}">
+                <a href="#" id="expand-{{ button.id }}" class="pull-right"\\
+                                                        onclick="toggle_output({{ button.id }})">[+]</a>
+                <div class="output" id="output-{{ button.id }}" style="display:none">
                     None
                 </div>
             </div>
             {% endfor %}
-        <div class="row">
+            <div class="row">
                 <div class="panel panel-info">
                     <div class="panel-heading">
                         Loops
@@ -40,11 +56,12 @@
                 </div>
             </div>
             {% for loopc in console.loops %}
-            <div class="row">
+            <div class="row loop command">
                 <span class="glyphicon glyphicon-repeat"></span>
                 <a href="#">{{ loopc.cmd }}</a>
-                <a href="#" id="expand-{{ loopc.id }}" class="pull-right">[+]</a>
-                <div class="output" id="output-{{ loopc.id }}">
+                <a href="#" id="expand-{{ loopc.id }}" class="pull-right"\\
+                                                       onclick="toggle_output({{ loopc.id }})">[+]</a>
+                <div class="output" id="output-{{ loopc.id }}" style="display:none">
                     None
                 </div>
             </div>
