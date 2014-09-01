@@ -10,7 +10,7 @@
     <link rel="Shortcut Icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
 
     {% block css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <link href='http://fonts.googleapis.com/css?family=Play' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     {% endblock %}
@@ -24,11 +24,16 @@
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Joystick</a>
+                <a class="navbar-brand" href="#" id="brand">Joystick</a>
             </div>
-            <div class="nav-collapse collapse pull-right">
+            <ul class="navbar-nav nav">
+                {% block navbar_content %}
+                {% endblock %}
+            </ul>
+            <div class="pull-right">
                 <ul class="navbar-nav nav">
-                    <li>User text here later</li>
+                    <li><a href="#">Dennis Wilson</a></li>
+                    <li><img src="{{ url_for('static', filename='img/useravatar.png') }}"></li>
                 </ul>
             </div>
         </div>
