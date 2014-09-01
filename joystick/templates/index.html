@@ -1,0 +1,29 @@
+<html>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <br/>
+
+    <h1>Consoles:</h1>
+    <ul>
+    {% for console in consoles %}
+        <li><a href="{{ url_for('console', console_name=console.name) }}">{{ console.name }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <br/>
+
+    <form method="POST" action="/">
+        {{ form.csrf_token }}
+        {{ form.name }}
+        <input type="submit" value="add">
+    </form>
+</body>

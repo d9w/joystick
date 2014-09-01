@@ -1,0 +1,48 @@
+<html>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <br/>
+
+    <h1>Console {{ console.name }}</h1>
+
+    <h2>Shells</h2>
+    <ul>
+    {% for shell in console.shells %}
+        <li>{{ shell.cmd }}</li>
+    {% endfor %}
+    </ul>
+    <br/>
+
+    <h2>Buttons</h2>
+    <ul>
+    {% for button in console.buttons %}
+        <li>{{ button.cmd }}</li>
+    {% endfor %}
+    </ul>
+    <br/>
+
+    <h2>Loops</h2>
+    <ul>
+    {% for loopc in console.loops %}
+        <li>{{ loopc.cmd }}</li>
+    {% endfor %}
+    </ul>
+    <br/>
+
+
+
+    <form action={{ url_for('console_delete', console_name=console.name) }} method="POST">
+        <input type='submit' value='delete'>
+    </form>
+
+</body>
+</html>

@@ -1,9 +1,30 @@
 from .app import app
-from flask import render_template
+from .models import db, Console
+from .forms import ConsoleForm
+from flask import flash, request, redirect, url_for, render_template
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return 'Hello world!'
+    form = ConsoleForm()
+    if request.method == 'POST' and form.validate():
+        print 'here'
+        console = Console(name=form.name.data)
+        db.session.add(console)
+        db.session.commit()
+        flash('Console {} added'.format(form.name.data))
+    return render_template('index.html', consoles=Console.query.all(), form=form)
+
+@app.route('/<console_name>', methods=['GET', 'POST'])
+def console(console_name):
+    console = Console.query.get(console_name)
+    return render_template('console.html', console=console)
+
+@app.route('/<console_name>/delete', methods=['POST'])
+def console_delete(console_name):
+    console = Console.query.get(console_name)
+    db.session.delete(console)
+    db.session.commit()
+    return redirect(url_for('index'))
 
 @app.errorhandler(403)
 def forbidden_page(error):
