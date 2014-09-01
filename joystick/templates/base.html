@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Joystick{% endblock %}</title>
+    <meta name="description" content="Joystick lets you play with computers.">
+    <meta name="author" content="Dennis Wilson">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="Shortcut Icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+
+    {% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% endblock %}
+
+    {% block css_style %}
+    {% endblock %}
+
+</head>
+<body>
+    {% block topbar %}
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Joystick</a>
+            </div>
+            <div class="nav-collapse collapse pull-right">
+                <ul class="navbar-nav nav">
+                    <li>User text here later</li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    <div class="container-fluid">
+
+        <div class="row">
+            {% block flash_message %}
+                {% with messages = get_flashed_messages(with_categories=True) %}
+                    {% if messages %}
+                        <div id='flash_message_container'>
+                            {% for category, msg in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    <button type="button" class="close" data-dismiss="alert">×</button>
+                                    {{ msg }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            {% endblock %}
+        </div>
+
+        <div class="row">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+        <div class="row">
+            <footer id="footer">
+                Footer stuff here later
+            </footer>
+        </div>
+
+    </div>
+
+    {% block js_btm %}
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% endblock %}
+
+</body>

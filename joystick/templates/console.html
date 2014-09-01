@@ -1,5 +1,6 @@
-<html>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <ul class=flashes>
@@ -44,5 +45,4 @@
         <input type='submit' value='delete'>
     </form>
 
-</body>
-</html>
+{% endblock %}
