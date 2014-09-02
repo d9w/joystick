@@ -1,30 +1,44 @@
 {% extends 'base.html' %}
 
+{% block navbar_content %}
+<li><a href="{{ url_for('index') }}">Consoles</a></li>
+{% endblock %}
+
 {% block content %}
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
 
-    <br/>
+    <div class="col-lg-2">
+    </div>
 
-    <h1>Consoles:</h1>
-    <ul>
-    {% for console in consoles %}
-        <li><a href="{{ url_for('console', console_name=console.name) }}">{{ console.name }}</a></li>
-    {% endfor %}
-    </ul>
+    <div class="col-lg-8">
+        <div class="container-fluid" id="containers">
+            {% for console in consoles %}
+            <div class="row console">
+                <a href="{{ url_for('console', console_name=console.name) }}">{{ console.name }}</a>
+            </div>
+            {% endfor %}
 
-    <br/>
+            <div class="row">
+                <br/>
+                <form method="POST" action="/" id="add-console">
+                    {{ form.csrf_token }}
+                    <label for="name">Name</label>
+                    {{ form.name }}
+                    <input type="submit" value="Add console">
+                    {% if form.errors %}
+                        <ul class="errors">
+                            {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+                                {% for error in field_errors %}
+                                    <li>{{ form[field_name].label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
 
-    <form method="POST" action="/">
-        {{ form.csrf_token }}
-        {{ form.name }}
-        <input type="submit" value="add">
-    </form>
+    <div class="col-lg-2">
+    </div>
+
 {% endblock %}

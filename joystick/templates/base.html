@@ -23,7 +23,6 @@
 
 </head>
 <body>
-    {% block topbar %}
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -42,15 +41,16 @@
             </div>
         </div>
     </nav>
-    {% endblock %}
 
     <div class="container-fluid">
-
         <div class="row">
+            <div class="col-lg-4">
+            </div>
+            <div class="col-lg-4">
             {% block flash_message %}
                 {% with messages = get_flashed_messages(with_categories=True) %}
                     {% if messages %}
-                        <div id='flash_message_container'>
+                        <div id='flash_message_container' style="display:none">
                             {% for category, msg in messages %}
                                 <div class="alert alert-{{ category }}">
                                     <button type="button" class="close" data-dismiss="alert">×</button>
@@ -61,20 +61,23 @@
                     {% endif %}
                 {% endwith %}
             {% endblock %}
+            </div>
+            <div class="col-lg-4">
+            </div>
         </div>
 
         <div class="row">
             {% block content %}
             {% endblock %}
         </div>
-
-        <div class="row">
-            <footer id="footer">
-                Footer stuff here later
-            </footer>
-        </div>
-
     </div>
+
+    <footer id="footer">
+        <a href="{{ url_for('about') }}">About</a>
+        &middot;
+        <a href="{{ url_for('help') }}">Help</a>
+    </footer>
+
 
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
@@ -83,4 +86,6 @@
     {% block js_btm %}
 
     {% endblock %}
+
+    </div> <!--wrapper-->
 </body>

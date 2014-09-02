@@ -1,1 +1,17 @@
-You aren't supposed to be here
+{% extends 'base.html' %}
+
+{% block css_style %}
+<style>
+#words {
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="words">
+<h1>403</h1>
+<br/><br/>
+(That means you aren't supposed to be here)
+</div>
+{% endblock %}

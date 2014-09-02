@@ -16,7 +16,7 @@ function toggle_output(command_id){
 {% endblock %}
 
 {% block navbar_content %}
-<li><a href="#">{{ console.name }}</a></li>
+<li><a href="{{ url_for('console', console_name=console.name) }}">{{ console.name }}</a></li>
 {% endblock %}
 
 {% block content %}
