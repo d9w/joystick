@@ -8,6 +8,10 @@
 </style>
 {% endblock %}
 
+{% block navbar_content %}
+<li><a href="{{ url_for('about') }}">About</a></li>
+{% endblock %}
+
 {% block content %}
 <div id="words">Joystick lets you play with computers. That's about it.</div>
 {% endblock %}

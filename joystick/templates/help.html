@@ -8,6 +8,10 @@
 </style>
 {% endblock %}
 
+{% block navbar_content %}
+<li><a href="{{ url_for('help') }}">Help</a></li>
+{% endblock %}
+
 {% block content %}
 <div id="words">
 <img src="{{ url_for('static', filename='img/yoda.ico') }}">
