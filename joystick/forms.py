@@ -3,6 +3,9 @@ from wtforms import TextField, validators
 
 from .models import Console
 
+def console_name_unique(form, field):
+    if field.data in [c.name for c in Console.query.all()]:
+        raise validators.ValidationError(message='Console name already exists')
+
 class ConsoleForm(Form):
-    name = TextField('Name', [validators.Length(min=2, max=50),
-        validators.NoneOf([c.name for c in Console.query.all()], message='Console name already exists')])
+    name = TextField('Name', [validators.Required(), validators.Length(min=2, max=50), console_name_unique])
