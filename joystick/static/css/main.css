@@ -82,3 +82,13 @@ body {
     padding-top: 30px;
     margin-top: -30px;
 }
+
+.output {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    resize: none;
+}

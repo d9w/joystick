@@ -1,4 +1,6 @@
 from flask.ext.script import Manager, Shell
+from shutil import rmtree
+import os
 
 from joystick.app import app
 from joystick.models import Console, ShellCommand, LoopCommand, ButtonCommand, db
@@ -21,6 +23,10 @@ def init_data():
 def initdb():
 
     db.drop_all()
+    log_root = app.config['LOG_ROOT']
+    if os.path.exists(log_root):
+        rmtree(log_root, ignore_errors=True)
+    os.makedirs(log_root)
     db.create_all()
     init_data()
 

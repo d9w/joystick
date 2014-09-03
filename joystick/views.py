@@ -1,7 +1,7 @@
 from .app import app
-from .models import db, Console
+from .models import db, Console, Command
 from .forms import ConsoleForm
-from flask import flash, request, redirect, url_for, render_template
+from flask import flash, request, redirect, url_for, render_template, Response
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -32,6 +32,16 @@ def console_delete(console_name):
     db.session.commit()
     flash('Console {} deleted'.format(console_name), 'info')
     return redirect(url_for('index'))
+
+@app.route('/command/<command_id>/log', methods=['GET'])
+def command_log(command_id):
+    command = Command.query.get(command_id)
+    return Response(command.get_log(), content_type='text/plain;charset=UTF-8')
+
+@app.route('/command/<command_id>/tail/<N>', methods=['GET'])
+def command_tail(command_id, N):
+    command = Command.query.get(command_id)
+    return Response(command.get_log_tail(int(N)), content_type='text/plain;charset=UTF-8')
 
 @app.route('/about', methods=['GET'])
 def about():
