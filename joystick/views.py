@@ -13,12 +13,19 @@ def index():
         flash('Console {} added'.format(form.name.data), 'info')
     return render_template('index.html', consoles=Console.query.all(), form=form)
 
-@app.route('/<console_name>', methods=['GET', 'POST'])
+@app.route('/console/<console_name>', methods=['GET', 'POST'])
 def console(console_name):
     console = Console.query.get(console_name)
-    return render_template('console.html', console=console)
+    form = ConsoleForm()
+    if request.method == 'POST' and form.validate():
+        old_name = console.name
+        console.name = form.name.data
+        db.session.add(console)
+        db.session.commit()
+        flash('Console {} renamed to {}'.format(old_name, form.name.data), 'info')
+    return render_template('console.html', console=console, form=form)
 
-@app.route('/<console_name>/delete', methods=['POST'])
+@app.route('/console/<console_name>/delete', methods=['POST'])
 def console_delete(console_name):
     console = Console.query.get(console_name)
     db.session.delete(console)

@@ -44,6 +44,11 @@ body {
     color: #9fda8c;
 }
 
+#logo {
+    height: 40px;
+    width: auto;
+}
+
 #brand {
     color: #FFF;
     font-size:28px;
@@ -70,7 +75,10 @@ body {
     padding-top: 10px;
 }
 
-#logo {
-    height: 40px;
-    width: auto;
+#edit-console-bar {
+    background-color: #CCC;
+    display: none;
+    padding-bottom: 20px;
+    padding-top: 30px;
+    margin-top: -30px;
 }
