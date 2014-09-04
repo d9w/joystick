@@ -19,7 +19,7 @@ class Command(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cmd = db.Column(db.String(255))
     log_file = db.Column(db.String(255))
-    console_name = db.Column(db.Integer, db.ForeignKey('console.id'))
+    console_id = db.Column(db.Integer, db.ForeignKey('console.id'))
     type = db.Column(db.String(50))
 
     __mapper_args__ = {

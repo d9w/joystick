@@ -21,8 +21,10 @@
                 <br/>
                 <form method="POST" action="/" id="add-console">
                     {{ form.csrf_token }}
-                    <label for="name">Name</label>
-                    {{ form.name }}
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        {{ form.name(class="form-control") }}
+                    </div>
                     <input type="submit" value="Add console">
                     {% if form.errors %}
                         <ul class="errors">

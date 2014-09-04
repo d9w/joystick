@@ -77,10 +77,13 @@ body {
 
 #edit-console-bar {
     background-color: #CCC;
-    display: none;
     padding-bottom: 20px;
     padding-top: 30px;
     margin-top: -30px;
+}
+
+.form-control {
+    border-radius: 0;
 }
 
 .output {

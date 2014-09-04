@@ -1,6 +1,6 @@
 from .app import app
-from .models import db, Console, Command
-from .forms import ConsoleForm
+from .models import db, Console, Command, ButtonCommand, LoopCommand
+from .forms import ConsoleForm, ButtonForm, LoopForm
 from flask import flash, request, redirect, url_for, render_template, Response
 
 @app.route('/', methods=['GET', 'POST'])
@@ -16,14 +16,42 @@ def index():
 @app.route('/console/<console_name>', methods=['GET', 'POST'])
 def console(console_name):
     console = Console.query.filter(Console.name==console_name).first()
-    form = ConsoleForm()
-    if request.method == 'POST' and form.validate():
-        old_name = console.name
-        console.name = form.name.data
-        db.session.add(console)
-        db.session.commit()
-        flash('Console {} renamed to {}'.format(old_name, form.name.data), 'info')
-    return render_template('console.html', console=console, form=form)
+    console_form = ConsoleForm()
+    button_form = ButtonForm()
+    loop_form = LoopForm()
+    if request.method == 'POST' and console_form.validate():
+            old_name = console.name
+            console.name = console_form.name.data
+            db.session.add(console)
+            db.session.commit()
+    return render_template('console.html', console=console,
+            console_form=console_form, button_form=button_form, loop_form=loop_form)
+
+@app.route('/console/<console_name>/buttons', methods=['POST'])
+def console_buttons(console_name):
+    console = Console.query.filter(Console.name==console_name).first()
+    console_form = ConsoleForm()
+    button_form = ButtonForm()
+    loop_form = LoopForm()
+    if request.method == 'POST' and button_form.validate():
+            button = ButtonCommand(cmd=button_form.cmd.data, console_id=console.id)
+            db.session.add(button)
+            db.session.commit()
+    return render_template('console.html', console=console,
+            console_form=console_form, button_form=button_form, loop_form=loop_form)
+
+@app.route('/console/<console_name>/loops', methods=['POST'])
+def console_loops(console_name):
+    console = Console.query.filter(Console.name==console_name).first()
+    console_form = ConsoleForm()
+    button_form = ButtonForm()
+    loop_form = LoopForm()
+    if request.method == 'POST' and loop_form.validate():
+            loop = LoopCommand(cmd=loop_form.cmd.data, console_id=console.id)
+            db.session.add(loop)
+            db.session.commit()
+    return render_template('console.html', console=console,
+            console_form=console_form, button_form=button_form, loop_form=loop_form)
 
 @app.route('/console/<console_name>/delete', methods=['POST'])
 def console_delete(console_name):
