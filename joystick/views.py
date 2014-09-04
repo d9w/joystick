@@ -15,7 +15,7 @@ def index():
 
 @app.route('/console/<console_name>', methods=['GET', 'POST'])
 def console(console_name):
-    console = Console.query.get(console_name)
+    console = Console.query.filter(Console.name==console_name).first()
     form = ConsoleForm()
     if request.method == 'POST' and form.validate():
         old_name = console.name
@@ -27,7 +27,7 @@ def console(console_name):
 
 @app.route('/console/<console_name>/delete', methods=['POST'])
 def console_delete(console_name):
-    console = Console.query.get(console_name)
+    console = Console.query.filter(Console.name==console_name).first()
     db.session.delete(console)
     db.session.commit()
     flash('Console {} deleted'.format(console_name), 'info')

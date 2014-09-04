@@ -8,7 +8,8 @@ db = SQLAlchemy(app)
 
 # collection of different commands
 class Console(db.Model):
-    name = db.Column(db.String(255), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255))
     shells = db.relationship('ShellCommand', backref='console', lazy='select')
     loops = db.relationship('LoopCommand', backref='console', lazy='select')
     buttons = db.relationship('ButtonCommand', backref='console', lazy='select')
@@ -18,7 +19,7 @@ class Command(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cmd = db.Column(db.String(255))
     log_file = db.Column(db.String(255))
-    console_name = db.Column(db.String(255), db.ForeignKey('console.name'))
+    console_name = db.Column(db.Integer, db.ForeignKey('console.id'))
     type = db.Column(db.String(50))
 
     __mapper_args__ = {
