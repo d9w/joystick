@@ -24,26 +24,11 @@
 {% endblock %}
 
 {% block js_top %}
-<script type="text/javascript">
-function toggle_output(command_id){
-    $('#output-'+command_id).slideToggle(400, function() {
-        if ($('#output-'+command_id).is(":visible")) {
-            $('#expand-'+command_id).html('[-]');
-            $('#output-'+command_id+'-text').load('{{ url_for('command_tail', command_id="REPLACE", N=5) }}'.replace("REPLACE", command_id));
-        } else {
-            $('#expand-'+command_id).html('[+]');
-        }
-    });
-};
-function toggle_edit(){
-    $('#edit-console-bar').slideToggle();
-};
-</script>
 {% endblock %}
 
 {% block navbar_content %}
 <li><a href="{{ url_for('console', console_name=console.name) }}">{{ console.name }}</a></li>
-<li><a href="#" onclick="toggle_edit()"><span class="glyphicon glyphicon-wrench"></span></a></li>
+<li><a href="#" onclick="$('#edit-console-bar').slideToggle()"><span class="glyphicon glyphicon-wrench"></span></a></li>
 {% endblock %}
 
 {% block content %}
@@ -120,10 +105,9 @@ function toggle_edit(){
             <div class="row button command">
                 <span class="glyphicon glyphicon-play"></span>
                 <a href="#">{{ button.cmd }}</a>
-                <a href="#" id="expand-{{ button.id }}" class="pull-right"\\
-                                                        onclick="toggle_output({{ button.id }})">[+]</a>
+                <a href="#" id="expand-{{ button.id }}" class="pull-right expand">[+]</a>
                 <div class="output" id="output-{{ button.id }}" style="display:none" readonly="readonly">
-                    <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=5>
+                    <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>
                     </textarea>
                 </div>
             </div>
@@ -169,8 +153,7 @@ function toggle_edit(){
             <div class="row loop command">
                 <span class="glyphicon glyphicon-repeat"></span>
                 <a href="{{ url_for('command_log', command_id=loopc.id) }}">{{ loopc.cmd }}</a>
-                <a href="#" id="expand-{{ loopc.id }}" class="pull-right"\\
-                                                       onclick="toggle_output({{ loopc.id }})">[+]</a>
+                <a href="#" id="expand-{{ loopc.id }}" class="pull-right expand">[+]</a>
                 <div class="output" id="output-{{ loopc.id }}" style="display:none" readonly="readonly">
                     <textarea id="output-{{ loopc.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=5>
                     </textarea>
@@ -180,4 +163,9 @@ function toggle_edit(){
         </div>
     </div>
 
+{% endblock %}
+
+{% block js_btm %}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/console.js') }}"></script>
 {% endblock %}

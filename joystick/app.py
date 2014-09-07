@@ -6,3 +6,4 @@ app.config.from_pyfile(app.config['PRODUCTION_ROOT'] + '/production.cfg')
 
 from . import views
 from . import models
+from . import sockets

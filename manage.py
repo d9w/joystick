@@ -1,15 +1,13 @@
 from flask.ext.script import Manager, Shell
+from gevent import monkey
 from shutil import rmtree
 import os
 
 from joystick.app import app
 from joystick.models import Console, ShellCommand, LoopCommand, ButtonCommand, db
+from joystick.sockets import socketio
 
 manager = Manager(app)
-
-@manager.command
-def run():
-    app.run()
 
 def init_data():
     console = Console(name='test')
@@ -29,6 +27,11 @@ def initdb():
     os.makedirs(log_root)
     db.create_all()
     init_data()
+
+@manager.command
+def run():
+    monkey.patch_all()
+    socketio.run(app)
 
 @manager.shell
 def _make_context():
