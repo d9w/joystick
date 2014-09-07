@@ -2,6 +2,13 @@ from .app import app
 from .models import db, Console, Command, ButtonCommand, LoopCommand
 from .forms import ConsoleForm, ButtonForm, LoopForm
 from flask import flash, request, redirect, url_for, render_template, Response
+from werkzeug.exceptions import NotFound
+
+def get_or_404(klass, **query):
+    instance = klass.query.filter_by(**query).first()
+    if not instance:
+        raise NotFound()
+    return instance
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -15,7 +22,7 @@ def index():
 
 @app.route('/console/<console_name>', methods=['GET', 'POST'])
 def console(console_name):
-    console = Console.query.filter(Console.name==console_name).first()
+    console = get_or_404(Console, name=console_name)
     console_form = ConsoleForm()
     button_form = ButtonForm()
     loop_form = LoopForm()
@@ -29,7 +36,7 @@ def console(console_name):
 
 @app.route('/console/<console_name>/buttons', methods=['POST'])
 def console_buttons(console_name):
-    console = Console.query.filter(Console.name==console_name).first()
+    console = get_or_404(Console, name=console_name)
     console_form = ConsoleForm()
     button_form = ButtonForm()
     loop_form = LoopForm()
@@ -42,7 +49,7 @@ def console_buttons(console_name):
 
 @app.route('/console/<console_name>/loops', methods=['POST'])
 def console_loops(console_name):
-    console = Console.query.filter(Console.name==console_name).first()
+    console = get_or_404(Console, name=console_name)
     console_form = ConsoleForm()
     button_form = ButtonForm()
     loop_form = LoopForm()
@@ -55,7 +62,7 @@ def console_loops(console_name):
 
 @app.route('/console/<console_name>/delete', methods=['POST'])
 def console_delete(console_name):
-    console = Console.query.filter(Console.name==console_name).first()
+    console = get_or_404(Console, name=console_name)
     db.session.delete(console)
     db.session.commit()
     flash('Console {} deleted'.format(console_name), 'info')
