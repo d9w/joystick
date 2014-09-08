@@ -1,4 +1,5 @@
 from flask.ext.script import Manager, Shell
+from flask.ext.rq import get_worker
 from gevent import monkey
 from shutil import rmtree
 import os
@@ -32,6 +33,10 @@ def initdb():
 def run():
     monkey.patch_all()
     socketio.run(app)
+
+@manager.command
+def rqworker():
+    get_worker.work(True)
 
 @manager.shell
 def _make_context():

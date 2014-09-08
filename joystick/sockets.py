@@ -1,5 +1,6 @@
 from .app import app
 from .models import ButtonCommand
+from .jobs import test_job
 from flask import Flask, Response, request, render_template, url_for, redirect
 from flask.ext.socketio import SocketIO, emit
 from threading import Thread
@@ -7,24 +8,9 @@ import time
 
 socketio = SocketIO(app)
 
-#TODO: handle thread referencing with something like RQ, celery, or circus
-thread=None
-
-def background_thread():
-    """Example of how to send server generated events to clients."""
-    while True:
-        time.sleep(0.1)
-        with open('/prod/joystick/testlog','r') as log_file:
-            lines = log_file.readlines()
-        socketio.emit('log', {'lines': ''.join(lines[max(len(lines)-5,0):])}, namespace='/test')
-
 @socketio.on('open log', namespace='/test')
 def open_log(message):
-    # id in message.id
-    global thread
-    if thread is None:
-        thread = Thread(target=background_thread)
-        thread.start()
+    test_job.delay(message)
 
 @socketio.on('my broadcast event', namespace='/test')
 def test_message(message):

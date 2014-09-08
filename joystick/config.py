@@ -13,3 +13,6 @@ SECRET_KEY = '' # override in production
 
 SQLALCHEMY_ECHO = True
 SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/joystick'
+
+RQ_DEFAULT_HOST = 'localhost'
+RQ_DEFAULT_PORT = 6379
