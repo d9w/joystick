@@ -9,7 +9,7 @@ $(function() {
     });
 
     socket.on('log', function (data) {
-            $('#output-3-text').text(data.lines);
+            $('#output-'+data.id+'-text').text(data.lines);
     });
 
     function toggle_output(command_id){
@@ -17,7 +17,6 @@ $(function() {
             if ($('#output-'+command_id).is(":visible")) {
                 $('#expand-'+command_id).html('[-]');
                 socket.emit('open log', {'id':command_id});
-                //$('#output-'+command_id+'-text').load('{{ url_for('command_tail', command_id="REPLACE", N=5) }}'.replace("REPLACE", command_id));
             } else {
                 $('#expand-'+command_id).html('[+]');
             }

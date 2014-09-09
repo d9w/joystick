@@ -14,8 +14,9 @@ def init_data():
     console = Console(name='test')
     shell = ShellCommand(cmd='sh', console=console)
     loop = LoopCommand(cmd='uptime', console=console)
-    button = ButtonCommand(cmd='reboot now', console=console)
-    db.session.add_all([console, shell, loop, button])
+    button = ButtonCommand(cmd='ping www.google.com', console=console)
+    button2 = ButtonCommand(cmd='traceroute www.google.com', console=console)
+    db.session.add_all([console, shell, loop, button, button2])
     db.session.commit()
 
 @manager.command
@@ -33,10 +34,6 @@ def initdb():
 def run():
     monkey.patch_all()
     socketio.run(app)
-
-@manager.command
-def rqworker():
-    get_worker.work(True)
 
 @manager.shell
 def _make_context():

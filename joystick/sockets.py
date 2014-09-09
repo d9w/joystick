@@ -1,16 +1,25 @@
 from .app import app
-from .models import ButtonCommand
-from .jobs import test_job
+from .models import Command
 from flask import Flask, Response, request, render_template, url_for, redirect
 from flask.ext.socketio import SocketIO, emit
-from threading import Thread
+import gevent
 import time
 
 socketio = SocketIO(app)
 
+greenlets = {}
+
+def serve_log(filename, cmd_id):
+    while True:
+        time.sleep(0.1)
+        with open(filename,'r') as log_file:
+            lines = log_file.readlines()
+        socketio.emit('log', {'id': cmd_id, 'lines': ''.join(lines[max(len(lines)-5,0):])}, namespace='/test')
+
 @socketio.on('open log', namespace='/test')
 def open_log(message):
-    test_job.delay(message)
+    command = Command.query.get(message['id'])
+    greenlets['serving-{}'.format(command.id)] = gevent.spawn(serve_log, command.log_file, command.id)
 
 @socketio.on('my broadcast event', namespace='/test')
 def test_message(message):
@@ -48,4 +57,7 @@ def test_connect():
 
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():
+    for key, greenlet in greenlets.iteritems():
+        print 'killing {}'.format(key)
+        greenlet.kill()
     print('Client disconnected')
