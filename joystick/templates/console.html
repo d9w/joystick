@@ -28,7 +28,7 @@
 
 {% block navbar_content %}
 <li><a href="{{ url_for('console', console_name=console.name) }}">{{ console.name }}</a></li>
-<li><a href="#" onclick="$('#edit-console-bar').slideToggle()"><span class="glyphicon glyphicon-wrench"></span></a></li>
+<li><a href="#" onclick="$('#edit-console-bar').slideToggle(100)"><span class="glyphicon glyphicon-wrench"></span></a></li>
 {% endblock %}
 
 {% block content %}
@@ -38,6 +38,7 @@
         <div class="col-lg-4">
             <form method="POST" action="{{ url_for('console', console_name=console.name) }}" id="edit-console">
                 {{ console_form.csrf_token }}
+                {{ console_form.type }}
                 <label for="name">Change name:</label>
                 {{ console_form.name }}
                 <input type="submit" value="edit console">
@@ -83,8 +84,9 @@
                 </div>
             </div>
             <div class="row" id="button-form-bar">
-                <form method="POST" action="{{ url_for('console_buttons', console_name=console.name) }}" id="console-add-button">
+                <form method="POST" action="{{ url_for('console', console_name=console.name) }}" id="console-add-button">
                     {{ button_form.csrf_token }}
+                    {{ button_form.type }}
                     <div class="form-group">
                         <label for="Command">Command:</label>
                         {{ button_form.cmd(class="form-control") }}
@@ -103,13 +105,28 @@
             </div>
             {% for button in console.buttons %}
             <div class="row button command">
-                <a href="#" id="push-{{ button.id }}"><span class="glyphicon glyphicon-play"></span></a>
-                <a href="#">{{ button.cmd }}</a>
-                <a href="#" id="expand-{{ button.id }}" class="pull-right expand">[+]</a>
-                <div class="output" id="output-{{ button.id }}" style="display:none" readonly="readonly">
-                    <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>
-                    </textarea>
-                </div>
+            {% if button.is_running() %}
+                <form method="POST" action="{{ url_for('command_kill', command_id=button.id) }}" id="push-button">
+                    <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn"></button>
+                    {{ button.cmd }}
+                    <a href="#" id="expand-{{ button.id }}" class="pull-right expand">[-]</a>
+                    <div class="output" id="output-{{ button.id }}">
+                        <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>
+                        </textarea>
+                    </div>
+                </form>
+            {% else %}
+                <form method="POST" action="{{ url_for('command_push', command_id=button.id) }}" id="push-button">
+                    <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn"></button>
+                    {{ button.cmd }}
+                    <a href="#" id="expand-{{ button.id }}" class="pull-right expand">[+]</a>
+                    <div class="output" id="output-{{ button.id }}" style="display:none">
+                        <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>
+                            {{ button.get_log_tail(5) }}
+                        </textarea>
+                    </div>
+                </form>
+            {% endif %}
             </div>
             {% endfor %}
             <div class="row">
@@ -123,8 +140,9 @@
                 </div>
             </div>
             <div class="row" id="loop-form-bar">
-                <form method="POST" action="{{ url_for('console_loops', console_name=console.name) }}" id="console-add-loop">
+                <form method="POST" action="{{ url_for('console', console_name=console.name) }}" id="console-add-loop">
                     {{ loop_form.csrf_token }}
+                    {{ loop_form.type }}
                     <div class="form-group">
                         <label for="Command">Command:</label>
                         {{ loop_form.cmd(class="form-control") }}

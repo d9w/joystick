@@ -1,8 +1,12 @@
 from .app import app
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.rq import job
+from daemons.commands import push_button
 from subprocess import call
 import string
 import random
+import os
+import signal
 
 db = SQLAlchemy(app)
 
@@ -39,7 +43,7 @@ class Command(db.Model):
         open(self.log_file, 'a').close()
 
     def __repr__(self):
-        return '<{}_{}:{}>>{}>'.format(self.__class__.__name__, self.id, self.cmd, self.log_file)
+        return '<{}_{}:\'{} >> {}\'>'.format(self.__class__.__name__, self.id, self.cmd, self.log_file)
 
     # return the last x lines of the log file
     def get_log_tail(self, x):
@@ -77,15 +81,20 @@ class ButtonCommand(Command):
     __tablename__ = 'buttons'
     __mapper_args__ = {'polymorphic_identity':'button'}
     id = db.Column(db.Integer, db.ForeignKey('command.id'), primary_key=True)
-    locked = db.Column(db.Boolean, default=False)
+    pid = db.Column(db.Integer, default=-1)
 
-    # locks, runs, then unlocks the command
     def push(self):
-        self.locked = True
-        db.session.commit()
-        with open(self.log_file, 'a') as log_file:
-            print 'here'
-            call(self.cmd, shell=True, stdout=log_file, stderr=log_file)
-            print 'done'
-        self.locked = False
-        db.session.commit()
+        push_button.delay(self.id)
+
+    def stop(self):
+        if self.is_running():
+            os.kill(self.pid, signal.SIGKILL)
+
+    def is_running(self):
+        if self.pid > 0:
+            try:
+                os.kill(self.pid, 0)
+            except OSError:
+                return False
+            return True
+        return False

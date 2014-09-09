@@ -26,37 +26,23 @@ def console(console_name):
     console_form = ConsoleForm()
     button_form = ButtonForm()
     loop_form = LoopForm()
-    if request.method == 'POST' and console_form.validate():
-            old_name = console.name
-            console.name = console_form.name.data
-            db.session.add(console)
-            db.session.commit()
-    return render_template('console.html', console=console,
-            console_form=console_form, button_form=button_form, loop_form=loop_form)
-
-@app.route('/console/<console_name>/buttons', methods=['POST'])
-def console_buttons(console_name):
-    console = get_or_404(Console, name=console_name)
-    console_form = ConsoleForm()
-    button_form = ButtonForm()
-    loop_form = LoopForm()
-    if request.method == 'POST' and button_form.validate():
-            button = ButtonCommand(cmd=button_form.cmd.data, console_id=console.id)
-            db.session.add(button)
-            db.session.commit()
-    return render_template('console.html', console=console,
-            console_form=console_form, button_form=button_form, loop_form=loop_form)
-
-@app.route('/console/<console_name>/loops', methods=['POST'])
-def console_loops(console_name):
-    console = get_or_404(Console, name=console_name)
-    console_form = ConsoleForm()
-    button_form = ButtonForm()
-    loop_form = LoopForm()
-    if request.method == 'POST' and loop_form.validate():
-            loop = LoopCommand(cmd=loop_form.cmd.data, console_id=console.id)
-            db.session.add(loop)
-            db.session.commit()
+    if request.method == 'POST':
+        if request.form['type'] == 'console':
+            if console_form.validate():
+                old_name = console.name
+                console.name = console_form.name.data
+                db.session.add(console)
+                db.session.commit()
+        elif request.form['type'] == 'button':
+            if button_form.validate():
+                button = ButtonCommand(cmd=button_form.cmd.data, console_id=console.id)
+                db.session.add(button)
+                db.session.commit()
+        elif request.form['type'] == 'loop':
+            if loop_form.validate():
+                loop = LoopCommand(cmd=loop_form.cmd.data, console_id=console.id)
+                db.session.add(loop)
+                db.session.commit()
     return render_template('console.html', console=console,
             console_form=console_form, button_form=button_form, loop_form=loop_form)
 
@@ -73,10 +59,17 @@ def command_log(command_id):
     command = Command.query.get(command_id)
     return Response(command.get_log(), content_type='text/plain;charset=UTF-8')
 
-@app.route('/command/<command_id>/tail/<N>', methods=['GET'])
-def command_tail(command_id, N):
+@app.route('/command/<command_id>/push', methods=['POST'])
+def command_push(command_id):
     command = Command.query.get(command_id)
-    return Response(command.get_log_tail(int(N)), content_type='text/plain;charset=UTF-8')
+    command.push()
+    return redirect(url_for('console', console_name = command.console.name))
+
+@app.route('/command/<command_id>/kill', methods=['POST'])
+def command_kill(command_id):
+    command = Command.query.get(command_id)
+    command.stop()
+    return redirect(url_for('console', console_name = command.console.name))
 
 @app.route('/about', methods=['GET'])
 def about():

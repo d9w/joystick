@@ -75,6 +75,10 @@ body {
     padding-top: 10px;
 }
 
+.cmd-btn {
+    border-radius: 0;
+}
+
 #edit-console-bar {
     background-color: #CCC;
     padding-bottom: 20px;
@@ -94,4 +98,5 @@ body {
     min-width: 100%;
     max-width: 100%;
     resize: none;
+    padding-top:10px;
 }

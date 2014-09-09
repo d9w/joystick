@@ -1,6 +1,6 @@
 from .app import app
 from .models import Command
-from flask import Flask, Response, request, render_template, url_for, redirect
+from flask import Flask, Response, request, render_template, url_for, redirect, session
 from flask.ext.socketio import SocketIO, emit
 import gevent
 import time
@@ -10,6 +10,7 @@ socketio = SocketIO(app)
 greenlets = {}
 
 def serve_log(filename, cmd_id):
+    print 'SERVING LOG FROM {} FOR COMMAND ID {}'.format(filename, cmd_id)
     while True:
         time.sleep(0.1)
         with open(filename,'r') as log_file:
@@ -53,6 +54,8 @@ def send_room_message(message):
 
 @socketio.on('connect', namespace='/test')
 def test_connect():
+    # check for existing greenlets for all commands in console
+    # start them if they aren't already started
     emit('my response', {'data': 'Connected', 'count': 0})
 
 @socketio.on('disconnect', namespace='/test')
