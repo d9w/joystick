@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 
+{% block css_style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
 {% block navbar_content %}
 <li><a href="{{ url_for('index') }}">Consoles</a></li>
 {% endblock %}

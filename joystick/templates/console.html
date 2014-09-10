@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block css_style %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/console.css') }}">
 <style type="text/css">
 {% if not console_form.errors %}
 #edit-console-bar {

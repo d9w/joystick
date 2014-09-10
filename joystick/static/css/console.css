@@ -1,0 +1,42 @@
+.panel-info {
+    border: none;
+}
+
+.panel-info > .panel-heading {
+    border: 0px solid black;
+    border-radius: 0;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    background-color: #FFF;
+    font-size: 16px;
+}
+
+.command {
+    padding-top: 10px;
+}
+
+.cmd-btn {
+    border-radius: 0;
+}
+
+#edit-console-bar {
+    background-color: #CCC;
+    padding-bottom: 20px;
+    padding-top: 30px;
+    margin-top: -30px;
+}
+
+.form-control {
+    border-radius: 0;
+}
+
+.output {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    resize: none;
+    padding-top:10px;
+}
