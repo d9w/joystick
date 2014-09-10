@@ -1,0 +1,55 @@
+<div class="row">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            Buttons
+            <a href="#" onclick="$('#button-form-bar').slideToggle()">
+                <span class="glyphicon glyphicon-plus pull-right"></span>
+            </a>
+        </div>
+    </div>
+</div>
+<div class="row" id="button-form-bar">
+    <form method="POST" action="{{ url_for('console', console_name=console.name) }}" id="console-add-button">
+        {{ button_form.csrf_token }}
+        {{ button_form.type }}
+        <div class="form-group">
+            <label for="Command">Command:</label>
+            {{ button_form.cmd(class="form-control") }}
+        </div>
+        <input type="submit" value="add button">
+        {% if button_form.errors %}
+            <ul class="errors">
+                {% for field_name, field_errors in button_form.errors|dictsort if field_errors %}
+                    {% for error in field_errors %}
+                        <li>{{ button_form[field_name].label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </form>
+</div>
+{% for button in console.buttons %}
+<div class="row">
+    <div class="container-fluid">
+        <div class="row button-command">
+            <form method="POST" action="{{ url_for('command', command_id=button.id) }}">
+        {% if button.is_running() %}
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn" name="action" value="stop"></button>
+        {% else %}
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn" name="action" value="push"></button>
+        {% endif %}
+            {{ button.cmd }}
+            <div class="btn-group pull-right">
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-file cmd-btn" name="action" value="log"></button>
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-trash cmd-btn" name="action" value="delete"></button>
+            </div>
+            </form>
+        </div>
+        <div class="row button-output">
+            <div class="output" id="output-{{ button.id }}">
+                <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>{{ button.get_log_tail(5) }}</textarea>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

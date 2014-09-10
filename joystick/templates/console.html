@@ -64,119 +64,12 @@
     </div>
 
     <div class="col-lg-6" id="shell">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                Shells
-                <span class="glyphicon glyphicon-plus pull-right"></span>
-            </div>
-        </div>
+        {% include 'shells.html' %}
     </div>
     <div class="col-lg-6">
         <div class="container-fluid">
-            <div class="row">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        Buttons
-                        <a href="#" onclick="$('#button-form-bar').slideToggle()">
-                            <span class="glyphicon glyphicon-plus pull-right"></span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="row" id="button-form-bar">
-                <form method="POST" action="{{ url_for('console', console_name=console.name) }}" id="console-add-button">
-                    {{ button_form.csrf_token }}
-                    {{ button_form.type }}
-                    <div class="form-group">
-                        <label for="Command">Command:</label>
-                        {{ button_form.cmd(class="form-control") }}
-                    </div>
-                    <input type="submit" value="add button">
-                    {% if button_form.errors %}
-                        <ul class="errors">
-                            {% for field_name, field_errors in button_form.errors|dictsort if field_errors %}
-                                {% for error in field_errors %}
-                                    <li>{{ button_form[field_name].label }}: {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </form>
-            </div>
-            {% for button in console.buttons %}
-            <div class="row">
-                <div class="container-fluid">
-                    <div class="row button-command">
-                        <form method="POST" action="{{ url_for('command', command_id=button.id) }}">
-                    {% if button.is_running() %}
-                            <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn" name="action" value="stop"></button>
-                    {% else %}
-                            <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn" name="action" value="push"></button>
-                    {% endif %}
-                        {{ button.cmd }}
-                        <div class="btn-group pull-right">
-                            <button type="submit" class="btn btn-primary glyphicon glyphicon-file cmd-btn" name="action" value="log"></button>
-                            <button type="submit" class="btn btn-primary glyphicon glyphicon-trash cmd-btn" name="action" value="delete"></button>
-                        </div>
-                        </form>
-                    </div>
-                    <div class="row button-output">
-                        <div class="output" id="output-{{ button.id }}">
-                            <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>{{ button.get_log_tail(5) }}</textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-            <div class="row">
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        Loops
-                        <a href="#" onclick="$('#loop-form-bar').slideToggle()">
-                            <span class="glyphicon glyphicon-plus pull-right"></span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="row" id="loop-form-bar">
-                <form method="POST" action="{{ url_for('console', console_name=console.name) }}" id="console-add-loop">
-                    {{ loop_form.csrf_token }}
-                    {{ loop_form.type }}
-                    <div class="form-group">
-                        <label for="Command">Command:</label>
-                        {{ loop_form.cmd(class="form-control") }}
-                    </div>
-                    <div class="form-group">
-                        <label for="Interval">Interval:</label>
-                        {{ loop_form.interval(class="form-control", placeholder="Loop interval in seconds") }}
-                    </div>
-                    <div class="form-group">
-                        <label for="Start">Start date:</label>
-                        {{ loop_form.start_date(class="form-control", placeholder="Start time in seconds since epoch") }}
-                    </div>
-                    <input type="submit" value="add loop" class="pull-right">
-                    {% if loop_form.errors %}
-                        <ul class="errors">
-                            {% for field_name, field_errors in loop_form.errors|dictsort if field_errors %}
-                                {% for error in field_errors %}
-                                    <li>{{ loop_form[field_name].label }}: {{ error }}</li>
-                                {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </form>
-            </div>
-            {% for loopc in console.loops %}
-            <div class="row loop command">
-                <span class="glyphicon glyphicon-repeat"></span>
-                <a href="{{ url_for('command_log', command_id=loopc.id) }}">{{ loopc.cmd }}</a>
-                <a href="#" id="expand-{{ loopc.id }}" class="pull-right expand">[+]</a>
-                <div class="output" id="output-{{ loopc.id }}" style="display:none" readonly="readonly">
-                    <textarea id="output-{{ loopc.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>
-                    </textarea>
-                </div>
-            </div>
-            {% endfor %}
+            {% include 'buttons.html' %}
+            {% include 'loops.html' %}
         </div>
     </div>
 
