@@ -27,7 +27,7 @@
 {% endblock %}
 
 {% block navbar_content %}
-<li><a href="{{ url_for('console', console_name=console.name) }}">{{ console.name }}</a></li>
+<li><a href="{{ url_for('console', console_name=console.name) }}" id="console-name">{{ console.name }}</a></li>
 <li><a href="#" onclick="$('#edit-console-bar').slideToggle(100)"><span class="glyphicon glyphicon-wrench"></span></a></li>
 {% endblock %}
 
