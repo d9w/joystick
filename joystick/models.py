@@ -57,6 +57,10 @@ class Command(db.Model):
         with open(self.log_file, 'r') as log_file:
             return log_file.read()
 
+    # removes the log file
+    def delete(self):
+        os.remove(self.log_file)
+
 # shells run the command as a new thread and open a socket for communication with the command
 # commands like ['ssh user@host', 'ipmitool shell', 'bash']
 class ShellCommand(Command):
@@ -99,3 +103,8 @@ class ButtonCommand(Command):
                 return False
             return True
         return False
+
+    # override, also stop
+    def delete(self):
+        self.stop()
+        os.remove(self.log_file)

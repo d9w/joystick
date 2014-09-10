@@ -54,22 +54,26 @@ def console_delete(console_name):
     flash('Console {} deleted'.format(console_name), 'info')
     return redirect(url_for('index'))
 
+@app.route('/command/<command_id>', methods=['POST'])
+def command(command_id):
+    command = Command.query.get(command_id)
+    console_name = command.console.name
+    if request.form['action']=='push':
+        command.push()
+    elif request.form['action']=='stop':
+        command.stop()
+    elif request.form['action']=='log':
+        return redirect(url_for('command_log', command_id=command_id))
+    elif request.form['action']=='delete':
+        command.delete()
+        db.session.delete(command)
+        db.session.commit()
+    return redirect(url_for('console', console_name=console_name))
+
 @app.route('/command/<command_id>/log', methods=['GET'])
 def command_log(command_id):
     command = Command.query.get(command_id)
     return Response(command.get_log(), content_type='text/plain;charset=UTF-8')
-
-@app.route('/command/<command_id>/push', methods=['POST'])
-def command_push(command_id):
-    command = Command.query.get(command_id)
-    command.push()
-    return redirect(url_for('console', console_name = command.console.name))
-
-@app.route('/command/<command_id>/kill', methods=['POST'])
-def command_kill(command_id):
-    command = Command.query.get(command_id)
-    command.stop()
-    return redirect(url_for('console', console_name = command.console.name))
 
 @app.route('/about', methods=['GET'])
 def about():

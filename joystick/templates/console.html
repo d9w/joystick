@@ -104,24 +104,28 @@
                 </form>
             </div>
             {% for button in console.buttons %}
-            <div class="row button command">
-            {% if button.is_running() %}
-                <form method="POST" action="{{ url_for('command_kill', command_id=button.id) }}" id="push-button">
-                    <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn"></button>
-                    {{ button.cmd }}
-                    <div class="output" id="output-{{ button.id }}">
-                        <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6></textarea>
+            <div class="row">
+                <div class="container-fluid">
+                    <div class="row button-command">
+                        <form method="POST" action="{{ url_for('command', command_id=button.id) }}">
+                    {% if button.is_running() %}
+                            <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn" name="action" value="stop"></button>
+                    {% else %}
+                            <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn" name="action" value="push"></button>
+                    {% endif %}
+                        {{ button.cmd }}
+                        <div class="btn-group pull-right">
+                            <button type="submit" class="btn btn-primary glyphicon glyphicon-file cmd-btn" name="action" value="log"></button>
+                            <button type="submit" class="btn btn-primary glyphicon glyphicon-trash cmd-btn" name="action" value="delete"></button>
+                        </div>
+                        </form>
                     </div>
-                </form>
-            {% else %}
-                <form method="POST" action="{{ url_for('command_push', command_id=button.id) }}" id="push-button">
-                    <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn"></button>
-                    {{ button.cmd }}
-                    <div class="output" id="output-{{ button.id }}">
-                        <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>{{ button.get_log_tail(5) }}</textarea>
+                    <div class="row button-output">
+                        <div class="output" id="output-{{ button.id }}">
+                            <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>{{ button.get_log_tail(5) }}</textarea>
+                        </div>
                     </div>
-                </form>
-            {% endif %}
+                </div>
             </div>
             {% endfor %}
             <div class="row">
