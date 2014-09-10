@@ -84,7 +84,8 @@ class ButtonCommand(Command):
     pid = db.Column(db.Integer, default=-1)
 
     def push(self):
-        push_button.delay(self.id)
+        if not self.is_running():
+            push_button.delay(self.id)
 
     def stop(self):
         if self.is_running():

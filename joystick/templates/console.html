@@ -109,21 +109,16 @@
                 <form method="POST" action="{{ url_for('command_kill', command_id=button.id) }}" id="push-button">
                     <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn"></button>
                     {{ button.cmd }}
-                    <a href="#" id="expand-{{ button.id }}" class="pull-right expand">[-]</a>
                     <div class="output" id="output-{{ button.id }}">
-                        <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>
-                        </textarea>
+                        <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6></textarea>
                     </div>
                 </form>
             {% else %}
                 <form method="POST" action="{{ url_for('command_push', command_id=button.id) }}" id="push-button">
                     <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn"></button>
                     {{ button.cmd }}
-                    <a href="#" id="expand-{{ button.id }}" class="pull-right expand">[+]</a>
-                    <div class="output" id="output-{{ button.id }}" style="display:none">
-                        <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>
-                            {{ button.get_log_tail(5) }}
-                        </textarea>
+                    <div class="output" id="output-{{ button.id }}">
+                        <textarea id="output-{{ button.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>{{ button.get_log_tail(5) }}</textarea>
                     </div>
                 </form>
             {% endif %}
