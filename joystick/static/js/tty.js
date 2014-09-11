@@ -63,6 +63,10 @@ tty.open = function() {
     tty.socket = io.connect();
   }
 
+  namespace = '/shell';
+
+  tty.socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
   tty.windows = [];
   tty.terms = {};
 
@@ -180,16 +184,6 @@ tty.reset = function() {
   tty.terms = {};
 
   tty.emit('reset');
-};
-
-/**
- * Lights
- */
-
-tty.toggleLights = function() {
-  root.className = !root.className
-    ? 'dark'
-    : '';
 };
 
 /**

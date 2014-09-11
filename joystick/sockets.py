@@ -9,6 +9,34 @@ socketio = SocketIO(app)
 
 greenlets = {}
 
+@socketio.on('create', namespace='/shell')
+def shell_create(cols=80, rows=24, func=None):
+    print 'CALLED CREATE({},{},{})'.format(cols, rows, func)
+
+@socketio.on('data', namespace='/shell')
+def shell_data(id, data):
+    print 'CALLED DATA({},{})'.format(id, data)
+
+@socketio.on('kill', namespace='/shell')
+def shell_kill(id):
+    print 'CALLED KILL({})'.format(id)
+
+@socketio.on('resize', namespace='/shell')
+def shell_resize(id, cols=None, rows=None):
+    print 'CALLED RESIZE({},{},{})'.format(id, cols, rows)
+
+@socketio.on('process', namespace='/shell')
+def shell_process(id, func=None):
+    print 'CALLED PROCESS({},{})'.format(id, func)
+
+@socketio.on('disconnect', namespace='/shell')
+def shell_disconnect():
+    print 'CALLED DISCONNECT'
+
+@socketio.on('request paste', namespace='/shell')
+def shell_paste(func):
+    print 'CALLED PASTE({})'.format(func)
+
 def serve_log(filename, cmd_id, console):
     while True:
         time.sleep(0.1)
