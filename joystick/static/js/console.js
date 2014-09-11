@@ -10,6 +10,7 @@ $(function() {
 
     socket.on('log', function (data) {
             $('#output-'+data.id+'-text').text(data.lines);
+            $('#output-'+data.id+'-text').addClass('running');
     });
 
     $(window).unload(function() {

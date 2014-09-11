@@ -3,6 +3,7 @@ from .models import db, Console, Command, ButtonCommand, LoopCommand
 from .forms import ConsoleForm, ButtonForm, LoopForm
 from flask import flash, request, redirect, url_for, render_template, Response
 from werkzeug.exceptions import NotFound
+from datetime import datetime
 
 def get_or_404(klass, **query):
     instance = klass.query.filter_by(**query).first()
@@ -23,6 +24,8 @@ def index():
 @app.route('/console/<console_name>', methods=['GET', 'POST'])
 def console(console_name):
     console = get_or_404(Console, name=console_name)
+    console.buttons.sort(key = lambda x: x.id)
+    console.loops.sort(key = lambda x: x.id)
     console_form = ConsoleForm()
     button_form = ButtonForm()
     loop_form = LoopForm()
@@ -40,7 +43,11 @@ def console(console_name):
                 db.session.commit()
         elif request.form['type'] == 'loop':
             if loop_form.validate():
-                loop = LoopCommand(cmd=loop_form.cmd.data, console_id=console.id)
+                start_date = loop_form.start_date.data
+                if not start_date:
+                    start_date = (datetime.utcnow()-datetime.utcfromtimestamp(0)).total_seconds()
+                loop = LoopCommand(cmd=loop_form.cmd.data, interval=float(loop_form.interval.data),
+                        start_date=start_date, console_id=console.id)
                 db.session.add(loop)
                 db.session.commit()
     return render_template('console.html', console=console,
@@ -68,6 +75,8 @@ def command(command_id):
         command.delete()
         db.session.delete(command)
         db.session.commit()
+    elif request.form['action']=='schedule':
+        command.start()
     return redirect(url_for('console', console_name=console_name))
 
 @app.route('/command/<command_id>/log', methods=['GET'])

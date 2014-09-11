@@ -13,11 +13,11 @@
         {{ loop_form.csrf_token }}
         {{ loop_form.type }}
         <div class="form-group">
-            <label for="Command">Command:</label>
+            <label for="Command">* Command:</label>
             {{ loop_form.cmd(class="form-control") }}
         </div>
         <div class="form-group">
-            <label for="Interval">Interval:</label>
+            <label for="Interval">* Interval:</label>
             {{ loop_form.interval(class="form-control", placeholder="Loop interval in seconds") }}
         </div>
         <div class="form-group">
@@ -37,13 +37,31 @@
     </form>
 </div>
 {% for loopc in console.loops %}
-<div class="row loop command">
-    <span class="glyphicon glyphicon-repeat"></span>
-    <a href="{{ url_for('command_log', command_id=loopc.id) }}">{{ loopc.cmd }}</a>
-    <a href="#" id="expand-{{ loopc.id }}" class="pull-right expand">[+]</a>
-    <div class="output" id="output-{{ loopc.id }}" style="display:none" readonly="readonly">
-        <textarea id="output-{{ loopc.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>
-        </textarea>
+<div class="row">
+    <div class="container-fluid">
+        <div class="row loop-command">
+            <form method="POST" action="{{ url_for('command', command_id=loopc.id) }}">
+            {% if loopc.is_scheduled() %}
+                    <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn" name="action" value="stop"></button>
+            {% else %}
+                    <button type="submit" class="btn btn-primary glyphicon glyphicon-repeat cmd-btn" name="action" value="schedule"></button>
+            {% endif %}
+            {{ loopc.cmd }}
+            | start at
+            {{ loopc.start_timestamp() }}
+            | every
+            {{ loopc.interval }}s
+            <div class="btn-group pull-right">
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-file cmd-btn" name="action" value="log"></button>
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-trash cmd-btn" name="action" value="delete"></button>
+            </div>
+            </form>
+        </div>
+        <div class="row button-output">
+            <div class="output" id="output-{{ loopc.id }}">
+                <textarea id="output-{{ loopc.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>{{ loopc.get_log_tail(5) }}</textarea>
+            </div>
+        </div>
     </div>
 </div>
 {% endfor %}

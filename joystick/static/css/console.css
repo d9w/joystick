@@ -40,3 +40,7 @@
     resize: none;
     padding-top:10px;
 }
+
+.running {
+    background-color: #9fda8c;
+}

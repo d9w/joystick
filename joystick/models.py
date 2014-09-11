@@ -2,13 +2,16 @@ from .app import app
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.rq import job
 from daemons.commands import push_button
-from subprocess import call
+from redis import Redis
+from rq_scheduler import Scheduler
+from datetime import datetime, timedelta
 import string
 import random
 import os
 import signal
 
 db = SQLAlchemy(app)
+scheduler = Scheduler(connection=Redis())
 
 # collection of different commands
 class Console(db.Model):
@@ -25,6 +28,7 @@ class Command(db.Model):
     log_file = db.Column(db.String(255))
     console_id = db.Column(db.Integer, db.ForeignKey('console.id'))
     type = db.Column(db.String(50))
+    pid = db.Column(db.Integer, default=-1)
 
     __mapper_args__ = {
             'polymorphic_identity':'command',
@@ -45,20 +49,30 @@ class Command(db.Model):
     def __repr__(self):
         return '<{}_{}:\'{} >> {}\'>'.format(self.__class__.__name__, self.id, self.cmd, self.log_file)
 
-    # return the last x lines of the log file
     def get_log_tail(self, x):
         with open(self.log_file, 'r') as log_file:
             lines = log_file.readlines()
             return ''.join(lines[max(len(lines)-x,0):])
 
-    # returns the whole log
     def get_log(self):
-        # returns the whole log
         with open(self.log_file, 'r') as log_file:
             return log_file.read()
 
-    # removes the log file
+    def stop(self):
+        if self.is_running():
+            os.kill(self.pid, signal.SIGKILL)
+
+    def is_running(self):
+        if self.pid > 0:
+            try:
+                os.kill(self.pid, 0)
+            except OSError:
+                return False
+            return True
+        return False
+
     def delete(self):
+        self.stop()
         os.remove(self.log_file)
 
 # shells run the command as a new thread and open a socket for communication with the command
@@ -79,32 +93,35 @@ class LoopCommand(Command):
     start_date = db.Column(db.Float) # in seconds since epoch
     interval = db.Column(db.Float) # in seconds
 
+    def start(self):
+        scheduler.schedule(scheduled_time=datetime.utcfromtimestamp(0)+timedelta(seconds=self.start_date),
+                func=push_button,
+                args=[self.id],
+                interval=self.interval,
+                repeat=None)
+
+    def is_scheduled(self):
+        for job in scheduler.get_jobs():
+            if job.func_name=='daemons.commands.push_button' and self.id in job.args:
+                return True
+        return False
+
+    def stop(self):
+        super(LoopCommand, self).stop()
+        for job in scheduler.get_jobs():
+            if job.func_name=='daemons.commands.push_button' and self.id in job.args:
+                job.delete()
+
+    def start_timestamp(self):
+        return (datetime.utcfromtimestamp(0)+timedelta(seconds=self.start_date)).strftime('UTC %Y-%m-%d %H:%M:%S')
+
 # buttons run commands in a new thread and lock the button until the command returns
 # commands like ['ssh user@host reboot now', 'ipmitool chassis power cycle', 'reboot now']
 class ButtonCommand(Command):
     __tablename__ = 'buttons'
     __mapper_args__ = {'polymorphic_identity':'button'}
     id = db.Column(db.Integer, db.ForeignKey('command.id'), primary_key=True)
-    pid = db.Column(db.Integer, default=-1)
 
     def push(self):
         if not self.is_running():
             push_button.delay(self.id)
-
-    def stop(self):
-        if self.is_running():
-            os.kill(self.pid, signal.SIGKILL)
-
-    def is_running(self):
-        if self.pid > 0:
-            try:
-                os.kill(self.pid, 0)
-            except OSError:
-                return False
-            return True
-        return False
-
-    # override, also stop
-    def delete(self):
-        self.stop()
-        os.remove(self.log_file)

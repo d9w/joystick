@@ -2,6 +2,7 @@ from flask.ext.script import Manager, Shell
 from flask.ext.rq import get_worker
 from gevent import monkey
 from shutil import rmtree
+from datetime import datetime
 import os
 
 from joystick.app import app
@@ -13,7 +14,9 @@ manager = Manager(app)
 def init_data():
     console = Console(name='test')
     shell = ShellCommand(cmd='sh', console=console)
-    loop = LoopCommand(cmd='uptime', console=console)
+    loop = LoopCommand(cmd='date', console=console,
+            start_date=(datetime.utcnow()-datetime.utcfromtimestamp(0)).total_seconds(),
+            interval=10.0)
     button = ButtonCommand(cmd='ping www.google.com', console=console)
     button2 = ButtonCommand(cmd='traceroute www.google.com', console=console)
     db.session.add_all([console, shell, loop, button, button2])
