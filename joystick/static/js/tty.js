@@ -583,14 +583,15 @@ function Tab(win, socket) {
 
   win.tabs.push(this);
 
-  this.socket.emit('create', cols, rows, function(err, data) {
-    if (err) return self._destroy();
-    self.pty = data.pty;
-    self.id = data.id;
-    tty.terms[self.id] = self;
-    self.setProcessName(data.process);
-    tty.emit('open tab', self);
-    self.emit('open');
+  this.socket.emit('create', cols, rows);
+
+  this.socket.on('created', function(data) {
+        self.pty = data.pty;
+        self.id = data.id;
+        tty.terms[self.id] = self;
+        self.setProcessName(data.process);
+        tty.emit('open tab', self);
+       self.emit('open');
   });
 };
 

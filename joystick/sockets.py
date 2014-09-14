@@ -4,17 +4,34 @@ from flask import Flask, Response, request, render_template, url_for, redirect, 
 from flask.ext.socketio import SocketIO, emit, join_room, leave_room
 import gevent
 import time
+import pexpect
 
 socketio = SocketIO(app)
 
 greenlets = {}
 
+global child
+child = pexpect.spawn('zsh')
+log = file('/prod/joystick/shelllog','w')
+child.logfile = log
+
+def endless_poll():
+    while True:
+        try:
+            s = child.read_nonblocking(1920, 0.1)
+            socketio.emit('data', 1, s, namespace='/shell')
+        except:
+            pass
+
 @socketio.on('create', namespace='/shell')
-def shell_create(cols=80, rows=24, func=None):
-    print 'CALLED CREATE({},{},{})'.format(cols, rows, func)
+def shell_create(cols=80, rows=24):
+    socketio.emit('created', {'pty': None, 'id': 1}, namespace='/shell')
+    gevent.spawn(endless_poll)
+    print 'CALLED CREATE({},{})'.format(cols, rows)
 
 @socketio.on('data', namespace='/shell')
 def shell_data(id, data):
+    child.write(data)
     print 'CALLED DATA({},{})'.format(id, data)
 
 @socketio.on('kill', namespace='/shell')
