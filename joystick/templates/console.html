@@ -35,7 +35,7 @@
 
 {% block content %}
 
-    <!--div class="container-fluid" id="edit-console-bar">
+    <div class="container-fluid" id="edit-console-bar">
         <div class="col-lg-2"></div>
         <div class="col-lg-4">
             <form method="POST" action="{{ url_for('console', console_name=console.name) }}" id="edit-console">
@@ -73,15 +73,13 @@
             {% include 'buttons.html' %}
             {% include 'loops.html' %}
         </div>
-    </div-->
-
-<button id="open">Open Terminal</button>
+    </div>
 
 {% endblock %}
 
 {% block js_btm %}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-<script src="{{ url_for('static', filename='js/term.js') }}"></script>
-<script src="{{ url_for('static', filename='js/tty.js') }}"></script>
-<script src="{{ url_for('static', filename='js/console.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/term.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/tty.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/console.js') }}"></script>
 {% endblock %}

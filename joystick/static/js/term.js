@@ -2734,6 +2734,7 @@ Terminal.prototype.error = function() {
   this.context.console.error.apply(this.context.console, args);
 };
 
+/*
 Terminal.prototype.resize = function(x, y) {
   var line
     , el
@@ -2808,6 +2809,7 @@ Terminal.prototype.resize = function(x, y) {
   // to null for now.
   this.normal = null;
 };
+*/
 
 Terminal.prototype.updateRange = function(y) {
   if (y < this.refreshStart) this.refreshStart = y;

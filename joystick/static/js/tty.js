@@ -53,6 +53,7 @@ tty.elements;
  */
 
 tty.open = function() {
+  /*
   if (document.location.pathname) {
     var parts = document.location.pathname.split('/')
       , base = parts.slice(0, parts.length - 1).join('/') + '/'
@@ -62,6 +63,7 @@ tty.open = function() {
   } else {
     tty.socket = io.connect();
   }
+  */
 
   namespace = '/shell';
 
@@ -90,11 +92,17 @@ tty.open = function() {
     });
   }
 
+  /*
   if (lights) {
     on(lights, 'click', function() {
       tty.toggleLights();
     });
   }
+  */
+
+  tty.socket.on('special', function() {
+    alert('called special');
+  });
 
   tty.socket.on('connect', function() {
     tty.reset();
@@ -211,8 +219,8 @@ function Window(socket) {
   bar.className = 'bar';
 
   button = document.createElement('div');
-  button.innerHTML = '~';
-  button.title = 'new/close';
+  button.innerHTML = 'x';
+  button.title = 'close';
   button.className = 'tab';
 
   title = document.createElement('div');
@@ -261,17 +269,13 @@ Window.prototype.bind = function() {
     , last = 0;
 
   on(button, 'click', function(ev) {
-    if (ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey) {
-      self.destroy();
-    } else {
-      self.createTab();
-    }
+    self.destroy();
     return cancel(ev);
   });
 
   on(grip, 'mousedown', function(ev) {
     self.focus();
-    self.resizing(ev);
+    //self.resizing(ev);
     return cancel(ev);
   });
 
@@ -282,10 +286,12 @@ Window.prototype.bind = function() {
 
     cancel(ev);
 
+    /*
     if (new Date - last < 600) {
       return self.maximize();
     }
     last = new Date;
+    */
 
     self.drag(ev);
 
@@ -560,7 +566,7 @@ function Tab(win, socket) {
 
   var button = document.createElement('div');
   button.className = 'tab';
-  button.innerHTML = '\u2022';
+  button.innerHTML = '';
   win.bar.appendChild(button);
 
   on(button, 'click', function(ev) {

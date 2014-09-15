@@ -5,6 +5,7 @@ from flask.ext.socketio import SocketIO, emit, join_room, leave_room
 import gevent
 import time
 import pexpect
+import socket
 
 socketio = SocketIO(app)
 
@@ -20,13 +21,22 @@ def endless_poll():
         try:
             s = child.read_nonblocking(1920, 0.1)
             socketio.emit('data', 1, s, namespace='/shell')
-        except:
+        except pexpect.TIMEOUT:
             pass
+
+gevent.spawn(endless_poll)
+
+@socketio.on('connect', namespace='/shell')
+def shell_connect():
+    print 'CALLED CONNECT'
+
+@socketio.on('open', namespace='/shell')
+def shell_open():
+    print 'CALLED OPEN'
 
 @socketio.on('create', namespace='/shell')
 def shell_create(cols=80, rows=24):
     socketio.emit('created', {'pty': None, 'id': 1}, namespace='/shell')
-    gevent.spawn(endless_poll)
     print 'CALLED CREATE({},{})'.format(cols, rows)
 
 @socketio.on('data', namespace='/shell')
@@ -44,6 +54,8 @@ def shell_resize(id, cols=None, rows=None):
 
 @socketio.on('process', namespace='/shell')
 def shell_process(id, func=None):
+    print 'CHILD IS ALIVE'
+    child.isalive()
     print 'CALLED PROCESS({},{})'.format(id, func)
 
 @socketio.on('disconnect', namespace='/shell')
