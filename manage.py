@@ -13,7 +13,7 @@ manager = Manager(app)
 
 def init_data():
     console = Console(name='test')
-    shell = ShellCommand(cmd='sh', console=console)
+    shell = ShellCommand(cmd='ssh root@infinilab.infinidat.com', console=console)
     loop = LoopCommand(cmd='date', console=console,
             start_date=(datetime.utcnow()-datetime.utcfromtimestamp(0)).total_seconds(),
             interval=10.0)

@@ -11,20 +11,7 @@ socketio = SocketIO(app)
 
 greenlets = {}
 
-global child
-child = pexpect.spawn('zsh')
-log = file('/prod/joystick/shelllog','w')
-child.logfile = log
-
-def endless_poll():
-    while True:
-        try:
-            s = child.read_nonblocking(1920, 0.1)
-            socketio.emit('data', 1, s, namespace='/shell')
-        except pexpect.TIMEOUT:
-            pass
-
-gevent.spawn(endless_poll)
+sockets = {}
 
 @socketio.on('connect', namespace='/shell')
 def shell_connect():
@@ -41,7 +28,7 @@ def shell_create(cols=80, rows=24):
 
 @socketio.on('data', namespace='/shell')
 def shell_data(id, data):
-    child.write(data)
+    sockets['shell-{}'.format(id)].sendall(data)
     print 'CALLED DATA({},{})'.format(id, data)
 
 @socketio.on('kill', namespace='/shell')
@@ -54,8 +41,6 @@ def shell_resize(id, cols=None, rows=None):
 
 @socketio.on('process', namespace='/shell')
 def shell_process(id, func=None):
-    print 'CHILD IS ALIVE'
-    child.isalive()
     print 'CALLED PROCESS({},{})'.format(id, func)
 
 @socketio.on('disconnect', namespace='/shell')
@@ -74,6 +59,15 @@ def serve_log(filename, cmd_id, console):
         socketio.emit('log', {'id': cmd_id, 'lines': ''.join(lines[max(len(lines)-5,0):])},
                 namespace='/console', room=console)
 
+def serve_shell(shell_id, console):
+    while True:
+        time.sleep(0.1)
+        try:
+            data = sockets['shellout-{}'.format(shell_id)].recv(1024)
+            socketio.emit('data', 1, data, namespace='/shell')
+        except socket.error:
+            pass
+
 @socketio.on('join', namespace='/console')
 def join(message):
     join_room(message['room'])
@@ -82,7 +76,16 @@ def join(message):
         if button.is_running():
             if 'serving-{}'.format(button.id) not in greenlets.keys():
                 greenlets['serving-{}'.format(button.id)] = gevent.spawn(serve_log,
-                        button.log_file, button.id, message['room'])
+                        button.log_file, button.id, console.name)
+    for shell in console.shells:
+        if 'serving-{}'.format(shell.id) not in greenlets.keys():
+            sockets['shell-{}'.format(shell.id)] = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sockets['shell-{}'.format(shell.id)].connect('/prod/joystick/shellsocket_in')
+            sockets['shellout-{}'.format(shell.id)] = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sockets['shellout-{}'.format(shell.id)].connect('/prod/joystick/shellsocket_out')
+            sockets['shellout-{}'.format(shell.id)].setblocking(0)
+            greenlets['serving-{}'.format(shell.id)] = gevent.spawn(serve_shell,
+                    shell.id, console.name)
 
 @socketio.on('leave', namespace='/console')
 def leave(message):
@@ -93,5 +96,12 @@ def leave(message):
         for button in console.buttons:
             try:
                 greenlets.pop('serving-{}'.format(button.id)).kill()
+            except KeyError:
+                pass
+        for shell in console.shells:
+            try:
+                sockets.pop('shell-{}'.format(shell.id)).close()
+                sockets.pop('shellout-{}'.format(shell.id)).close()
+                greenlets.pop('serving-{}'.format(shell.id)).kill()
             except KeyError:
                 pass

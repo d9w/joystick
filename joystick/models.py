@@ -81,7 +81,6 @@ class ShellCommand(Command):
     __tablename__ = 'shells'
     __mapper_args__ = {'polymorphic_identity':'shell'}
     id = db.Column(db.Integer, db.ForeignKey('command.id'), primary_key=True)
-    socket_file = db.Column(db.String(255))
 
 # loops are commands that run with a regular interval
 # usually for checking the state of something
