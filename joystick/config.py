@@ -3,6 +3,7 @@ import os
 PROJECT = 'joystick'
 PRODUCTION_ROOT = '/prod/joystick'
 LOG_ROOT = PRODUCTION_ROOT + '/logs'
+SOCKET_ROOT = PRODUCTION_ROOT + '/sockets'
 
 DEBUG = True
 TESTING = False

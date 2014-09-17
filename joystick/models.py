@@ -1,7 +1,7 @@
 from .app import app
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.rq import job
-from daemons.commands import push_button
+from daemons.commands import push_button, start_shell
 from redis import Redis
 from rq_scheduler import Scheduler
 from datetime import datetime, timedelta
@@ -81,6 +81,18 @@ class ShellCommand(Command):
     __tablename__ = 'shells'
     __mapper_args__ = {'polymorphic_identity':'shell'}
     id = db.Column(db.Integer, db.ForeignKey('command.id'), primary_key=True)
+    socket = db.Column(db.String(255))
+
+    def __init__(self, **kwargs):
+        super(ShellCommand, self).__init__(**kwargs)
+        if not self.socket:
+            self.socket = '%s/%s___%s.log' % (app.config.get('SOCKET_ROOT'),
+                    ''.join([c for c in self.cmd if c.isalnum() or c in ('_','-')]).rstrip(),
+                    ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10)),
+                    )
+
+    def start(self):
+        start_shell.delay(self.id)
 
 # loops are commands that run with a regular interval
 # usually for checking the state of something

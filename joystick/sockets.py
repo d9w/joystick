@@ -63,7 +63,7 @@ def serve_shell(shell_id, console):
     while True:
         time.sleep(0.1)
         try:
-            data = sockets['shellout-{}'.format(shell_id)].recv(1024)
+            data = sockets['shell-{}'.format(shell_id)].recv(1024)
             socketio.emit('data', 1, data, namespace='/shell')
         except socket.error:
             pass
@@ -80,10 +80,8 @@ def join(message):
     for shell in console.shells:
         if 'serving-{}'.format(shell.id) not in greenlets.keys():
             sockets['shell-{}'.format(shell.id)] = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sockets['shell-{}'.format(shell.id)].connect('/prod/joystick/shellsocket_in')
-            sockets['shellout-{}'.format(shell.id)] = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sockets['shellout-{}'.format(shell.id)].connect('/prod/joystick/shellsocket_out')
-            sockets['shellout-{}'.format(shell.id)].setblocking(0)
+            sockets['shell-{}'.format(shell.id)].connect(shell.socket)
+            sockets['shell-{}'.format(shell.id)].setblocking(0)
             greenlets['serving-{}'.format(shell.id)] = gevent.spawn(serve_shell,
                     shell.id, console.name)
 
@@ -101,7 +99,6 @@ def leave(message):
         for shell in console.shells:
             try:
                 sockets.pop('shell-{}'.format(shell.id)).close()
-                sockets.pop('shellout-{}'.format(shell.id)).close()
                 greenlets.pop('serving-{}'.format(shell.id)).kill()
             except KeyError:
                 pass
