@@ -1,7 +1,46 @@
-<div class="panel panel-info">
-    <div class="panel-heading">
-        Shells
-        <span class="glyphicon glyphicon-plus pull-right"></span>
-        <button id="open">Open Terminal</button>
+<div class="row">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            Shells
+            <a href="#" onclick="$('#shell-form-bar').slideToggle()">
+                <span class="glyphicon glyphicon-plus pull-right"></span>
+            </a>
+        </div>
     </div>
 </div>
+<div class="row" id="shell-form-bar">
+    <form method="POST" action="{{ url_for('console', console_name=console.name) }}" id="console-add-shell">
+        {{ shell_form.csrf_token }}
+        {{ shell_form.type }}
+        <div class="form-group">
+            <label for="Command">Command:</label>
+            {{ shell_form.cmd(class="form-control") }}
+        </div>
+        <input type="submit" value="add button">
+        {% if shell_form.errors %}
+            <ul class="errors">
+                {% for field_name, field_errors in shell_form.errors|dictsort if field_errors %}
+                    {% for error in field_errors %}
+                        <li>{{ shell_form[field_name].label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </form>
+</div>
+{% for shell in console.shells %}
+<div class="row command">
+            <form method="POST" action="{{ url_for('command', command_id=shell.id) }}">
+        {% if shell.is_running() %}
+                <a href="#" id="shell-open-{{ shell.id }}" class="shell-open"><span class="btn btn-primary glyphicon glyphicon-new-window cmd-btn"></span></a>
+        {% else %}
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn" name="action" value="start"></button>
+        {% endif %}
+            {{ shell.cmd }}
+            <div class="btn-group pull-right">
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-file cmd-btn" name="action" value="log"></button>
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-trash cmd-btn" name="action" value="delete"></button>
+            </div>
+            </form>
+</div>
+{% endfor %}

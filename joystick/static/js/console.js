@@ -16,4 +16,5 @@ $(function() {
     $(window).unload(function() {
         socket.emit('leave', {room:console_name});
     });
+
 });

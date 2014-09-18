@@ -31,12 +31,12 @@
 {% for button in console.buttons %}
 <div class="row">
     <div class="container-fluid">
-        <div class="row button-command">
+        <div class="row command">
             <form method="POST" action="{{ url_for('command', command_id=button.id) }}">
         {% if button.is_running() %}
                 <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn" name="action" value="stop"></button>
         {% else %}
-                <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn" name="action" value="push"></button>
+                <button type="submit" class="btn btn-primary glyphicon glyphicon-play cmd-btn" name="action" value="start"></button>
         {% endif %}
             {{ button.cmd }}
             <div class="btn-group pull-right">

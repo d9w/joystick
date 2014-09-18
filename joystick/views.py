@@ -1,6 +1,6 @@
 from .app import app
-from .models import db, Console, Command, ButtonCommand, LoopCommand
-from .forms import ConsoleForm, ButtonForm, LoopForm
+from .models import db, Console, Command, ButtonCommand, ShellCommand, LoopCommand
+from .forms import ConsoleForm, ButtonForm, ShellForm, LoopForm
 from flask import flash, request, redirect, url_for, render_template, Response
 from werkzeug.exceptions import NotFound
 from datetime import datetime
@@ -25,9 +25,11 @@ def index():
 def console(console_name):
     console = get_or_404(Console, name=console_name)
     console.buttons.sort(key = lambda x: x.id)
+    console.shells.sort(key = lambda x: x.id)
     console.loops.sort(key = lambda x: x.id)
     console_form = ConsoleForm()
     button_form = ButtonForm()
+    shell_form = ShellForm()
     loop_form = LoopForm()
     if request.method == 'POST':
         if request.form['type'] == 'console':
@@ -41,6 +43,11 @@ def console(console_name):
                 button = ButtonCommand(cmd=button_form.cmd.data, console_id=console.id)
                 db.session.add(button)
                 db.session.commit()
+        elif request.form['type'] == 'shell':
+            if shell_form.validate():
+                shell = ShellCommand(cmd=shell_form.cmd.data, console_id=console.id)
+                db.session.add(shell)
+                db.session.commit()
         elif request.form['type'] == 'loop':
             if loop_form.validate():
                 start_date = loop_form.start_date.data
@@ -51,7 +58,7 @@ def console(console_name):
                 db.session.add(loop)
                 db.session.commit()
     return render_template('console.html', console=console,
-            console_form=console_form, button_form=button_form, loop_form=loop_form)
+            console_form=console_form, button_form=button_form, shell_form=shell_form, loop_form=loop_form)
 
 @app.route('/console/<console_name>/delete', methods=['POST'])
 def console_delete(console_name):
@@ -65,8 +72,8 @@ def console_delete(console_name):
 def command(command_id):
     command = Command.query.get(command_id)
     console_name = command.console.name
-    if request.form['action']=='push':
-        command.push()
+    if request.form['action']=='start':
+        command.start()
     elif request.form['action']=='stop':
         command.stop()
     elif request.form['action']=='log':
@@ -75,8 +82,6 @@ def command(command_id):
         command.delete()
         db.session.delete(command)
         db.session.commit()
-    elif request.form['action']=='schedule':
-        command.start()
     return redirect(url_for('console', console_name=console_name))
 
 @app.route('/command/<command_id>/log', methods=['GET'])

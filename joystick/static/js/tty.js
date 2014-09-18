@@ -76,32 +76,20 @@ tty.open = function() {
     root: document.documentElement,
     body: document.body,
     h1: document.getElementsByTagName('h1')[0],
-    open: document.getElementById('open'),
     lights: document.getElementById('lights')
   };
 
   root = tty.elements.root;
   body = tty.elements.body;
   h1 = tty.elements.h1;
-  open = tty.elements.open;
   lights = tty.elements.lights;
 
-  if (open) {
-    on(open, 'click', function() {
-      new Window;
-    });
-  }
-
-  /*
-  if (lights) {
-    on(lights, 'click', function() {
-      tty.toggleLights();
-    });
-  }
-  */
-
-  tty.socket.on('special', function() {
-    alert('called special');
+  $('.shell-open').each(function() {
+      $(this).click(function() {
+          id = $(this).attr('id').split('shell-open-')[1];
+          console.log('STARTING WINDOW FOR '+id);
+          new Window(id);
+      });
   });
 
   tty.socket.on('connect', function() {
@@ -198,7 +186,7 @@ tty.reset = function() {
  * Window
  */
 
-function Window(socket) {
+function Window(id) {
   var self = this;
 
   EventEmitter.call(this);
@@ -225,9 +213,11 @@ function Window(socket) {
 
   title = document.createElement('div');
   title.className = 'title';
-  title.innerHTML = '';
+  title.innerHTML = id;
 
-  this.socket = socket || tty.socket;
+  this.id = id;
+
+  this.socket = tty.socket;
   this.element = el;
   this.grip = grip;
   this.bar = bar;
@@ -309,6 +299,8 @@ Window.prototype.focus = function() {
 
   // Focus Foreground Tab
   this.focused.focus();
+
+  console.log('FOCUS ON WINDOW '+this.id);
 
   tty.emit('focus window', this);
   this.emit('focus');
@@ -556,8 +548,11 @@ Window.prototype.previousTab = function() {
 function Tab(win, socket) {
   var self = this;
 
+  console.log('MAKIN TAB FOR WINDOW '+win.id);
+
   var cols = win.cols
-    , rows = win.rows;
+    , rows = win.rows
+    , id = win.id;
 
   Terminal.call(this, {
     cols: cols,
@@ -589,15 +584,14 @@ function Tab(win, socket) {
 
   win.tabs.push(this);
 
-  this.socket.emit('create', cols, rows);
+  this.socket.emit('create', id, cols, rows);
 
   this.socket.on('created', function(data) {
-        self.pty = data.pty;
-        self.id = data.id;
-        tty.terms[self.id] = self;
-        self.setProcessName(data.process);
-        tty.emit('open tab', self);
-       self.emit('open');
+      self.pty = data.pty;
+      self.id = data.id;
+      tty.terms[self.id] = self;
+      tty.emit('open tab', self);
+      self.emit('open');
   });
 };
 
@@ -612,6 +606,7 @@ Tab.prototype.handler = function(data) {
 // We could just hook in `tab.on('title', ...)`
 // in the constructor, but this is faster.
 Tab.prototype.handleTitle = function(title) {
+    return;
   if (!title) return;
 
   title = sanitize(title);
@@ -839,12 +834,14 @@ Tab.prototype.bindMouse = function() {
 };
 
 Tab.prototype.pollProcessName = function(func) {
+  /*
   var self = this;
   this.socket.emit('process', this.id, function(err, name) {
     if (err) return func && func(err);
     self.setProcessName(name);
     return func && func(null, name);
   });
+  */
 };
 
 Tab.prototype.setProcessName = function(name) {
@@ -903,6 +900,12 @@ function load() {
 on(document, 'load', load);
 on(document, 'DOMContentLoaded', load);
 setTimeout(load, 200);
+setTimeout(function() {
+  $('.shell-open').each(function() {
+      console.log($(this).attr('id'));
+      $(this).click();
+  });
+}, 250);
 
 /**
  * Expose

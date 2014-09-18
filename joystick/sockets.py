@@ -13,6 +13,24 @@ greenlets = {}
 
 sockets = {}
 
+def serve_log(filename, cmd_id, console):
+    while True:
+        time.sleep(0.1)
+        with open(filename,'r') as log_file:
+            lines = log_file.readlines()
+        socketio.emit('log', {'id': cmd_id, 'lines': ''.join(lines[max(len(lines)-5,0):])},
+                namespace='/console', room=console)
+
+def serve_shell(shell_id):
+    while True:
+        time.sleep(0.1)
+        try:
+            data = sockets['shell-{}'.format(shell_id)].recv(1024)
+            socketio.emit('data', 1, data, namespace='/shell')
+        except socket.error:
+            pass
+
+
 @socketio.on('connect', namespace='/shell')
 def shell_connect():
     print 'CALLED CONNECT'
@@ -22,9 +40,16 @@ def shell_open():
     print 'CALLED OPEN'
 
 @socketio.on('create', namespace='/shell')
-def shell_create(cols=80, rows=24):
-    socketio.emit('created', {'pty': None, 'id': 1}, namespace='/shell')
-    print 'CALLED CREATE({},{})'.format(cols, rows)
+def shell_create(id=None, cols=80, rows=24):
+    shell = Command.query.get(id)
+    if 'serving-{}'.format(shell.id) not in greenlets.keys():
+            sockets['shell-{}'.format(shell.id)] = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            sockets['shell-{}'.format(shell.id)].connect(shell.socket)
+            sockets['shell-{}'.format(shell.id)].setblocking(0)
+            greenlets['serving-{}'.format(shell.id)] = gevent.spawn(serve_shell,
+                    shell.id)
+    socketio.emit('created', {'pty': None, 'id': id}, namespace='/shell')
+    print 'CALLED CREATE({},{},{})'.format(id, cols, rows)
 
 @socketio.on('data', namespace='/shell')
 def shell_data(id, data):
@@ -33,6 +58,11 @@ def shell_data(id, data):
 
 @socketio.on('kill', namespace='/shell')
 def shell_kill(id):
+    try:
+        sockets.pop('shell-{}'.format(id)).close()
+        greenlets.pop('serving-{}'.format(id)).kill()
+    except KeyError:
+        pass
     print 'CALLED KILL({})'.format(id)
 
 @socketio.on('resize', namespace='/shell')
@@ -51,23 +81,6 @@ def shell_disconnect():
 def shell_paste(func):
     print 'CALLED PASTE({})'.format(func)
 
-def serve_log(filename, cmd_id, console):
-    while True:
-        time.sleep(0.1)
-        with open(filename,'r') as log_file:
-            lines = log_file.readlines()
-        socketio.emit('log', {'id': cmd_id, 'lines': ''.join(lines[max(len(lines)-5,0):])},
-                namespace='/console', room=console)
-
-def serve_shell(shell_id, console):
-    while True:
-        time.sleep(0.1)
-        try:
-            data = sockets['shell-{}'.format(shell_id)].recv(1024)
-            socketio.emit('data', 1, data, namespace='/shell')
-        except socket.error:
-            pass
-
 @socketio.on('join', namespace='/console')
 def join(message):
     join_room(message['room'])
@@ -77,13 +90,6 @@ def join(message):
             if 'serving-{}'.format(button.id) not in greenlets.keys():
                 greenlets['serving-{}'.format(button.id)] = gevent.spawn(serve_log,
                         button.log_file, button.id, console.name)
-    for shell in console.shells:
-        if 'serving-{}'.format(shell.id) not in greenlets.keys():
-            sockets['shell-{}'.format(shell.id)] = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sockets['shell-{}'.format(shell.id)].connect(shell.socket)
-            sockets['shell-{}'.format(shell.id)].setblocking(0)
-            greenlets['serving-{}'.format(shell.id)] = gevent.spawn(serve_shell,
-                    shell.id, console.name)
 
 @socketio.on('leave', namespace='/console')
 def leave(message):
@@ -97,8 +103,4 @@ def leave(message):
             except KeyError:
                 pass
         for shell in console.shells:
-            try:
-                sockets.pop('shell-{}'.format(shell.id)).close()
-                greenlets.pop('serving-{}'.format(shell.id)).kill()
-            except KeyError:
-                pass
+            shell_kill(shell.id)

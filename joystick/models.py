@@ -134,6 +134,6 @@ class ButtonCommand(Command):
     __mapper_args__ = {'polymorphic_identity':'button'}
     id = db.Column(db.Integer, db.ForeignKey('command.id'), primary_key=True)
 
-    def push(self):
+    def start(self):
         if not self.is_running():
             push_button.delay(self.id)

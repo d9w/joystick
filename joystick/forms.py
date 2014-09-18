@@ -17,7 +17,9 @@ class CommandForm(Form):
 
 class ButtonForm(CommandForm):
     type = HiddenField(default='button')
-    pass
+
+class ShellForm(CommandForm):
+    type = HiddenField(default='shell')
 
 class LoopForm(CommandForm):
     type = HiddenField(default='loop')

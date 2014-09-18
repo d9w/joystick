@@ -39,12 +39,12 @@
 {% for loopc in console.loops %}
 <div class="row">
     <div class="container-fluid">
-        <div class="row loop-command">
+        <div class="row command">
             <form method="POST" action="{{ url_for('command', command_id=loopc.id) }}">
             {% if loopc.is_scheduled() %}
                     <button type="submit" class="btn btn-primary glyphicon glyphicon-stop cmd-btn" name="action" value="stop"></button>
             {% else %}
-                    <button type="submit" class="btn btn-primary glyphicon glyphicon-repeat cmd-btn" name="action" value="schedule"></button>
+                    <button type="submit" class="btn btn-primary glyphicon glyphicon-repeat cmd-btn" name="action" value="start"></button>
             {% endif %}
             {{ loopc.cmd }}
             | start at
@@ -57,7 +57,7 @@
             </div>
             </form>
         </div>
-        <div class="row button-output">
+        <div class="row loop-output">
             <div class="output" id="output-{{ loopc.id }}">
                 <textarea id="output-{{ loopc.id }}-text" readonly="readonly" disabled="disabled" class="output" rows=6>{{ loopc.get_log_tail(5) }}</textarea>
             </div>
