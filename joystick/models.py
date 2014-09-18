@@ -1,6 +1,6 @@
 from .app import app
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.rq import job
+from flask.ext.rq import Queue
 from daemons.commands import push_button, start_shell
 from redis import Redis
 from rq_scheduler import Scheduler
@@ -92,7 +92,8 @@ class ShellCommand(Command):
                     )
 
     def start(self):
-        start_shell.delay(self.id)
+        q = Queue('shells', connection=Redis())
+        q.enqueue_call(func=start_shell, args=(self.id,), timeout=-1)
 
 # loops are commands that run with a regular interval
 # usually for checking the state of something
